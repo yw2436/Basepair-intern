@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<title>DNemulator</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="dnemulator">
+<h1 class="title">DNemulator</h1>
+
+<p>DNemulator is a package for simulating DNA sequencing errors,
+polymorphisms, cytosine methylation and bisulfite conversion.</p>
+<div class="section" id="installation">
+<h1>Installation</h1>
+<p>Optionally, you can copy the programs to a standard &quot;bin&quot; directory:</p>
+<pre class="literal-block">
+sudo make install
+</pre>
+<p>Or copy them to your personal ~/bin directory:</p>
+<pre class="literal-block">
+make install prefix=~
+</pre>
+</div>
+<div class="section" id="fasta-polymorph">
+<h1>fasta-polymorph</h1>
+<p>This program randomly modifies DNA sequences, using given
+polymorphisms and their frequencies.  The polymorphisms should be
+supplied in the UCSC Genome &quot;common SNPs&quot; format.  Run it like this:</p>
+<pre class="literal-block">
+fasta-polymorph snp132Common.txt genome.fa &gt; polymorphed.fa
+</pre>
+<p>To simulate a diploid genome, give it the same sequences twice:</p>
+<pre class="literal-block">
+fasta-polymorph snp132Common.txt genome.fa genome.fa &gt; diploid.fa
+</pre>
+<p>Since the polymorphisms may include insertions and deletions, we might
+wish to record the alignments between original and polymorphed
+sequences.  The &quot;-a&quot; option writes the alignments to a file:</p>
+<pre class="literal-block">
+fasta-polymorph -a align.seg snp132Common.txt genome.fa &gt; polymorphed.fa
+</pre>
+<p>The alignments are in SEG format, which is described in the seg-suite
+package.</p>
+</div>
+<div class="section" id="fasta-random-chunks">
+<h1>fasta-random-chunks</h1>
+<p>This program gets random fixed-length chunks of the input sequences.
+Run it like this:</p>
+<pre class="literal-block">
+fasta-random-chunks sequences.fa &gt; chunks.fa
+</pre>
+<p>Chunks containing uppercase letters other than ACGT are suppressed.
+However, lowercase letters are not suppressed.  (This enables us to
+abuse lowercase letters to represent things like methylation rates.)</p>
+<p>The title line of each chunk receives the following data:</p>
+<pre class="literal-block">
+&gt; serialNumber chunkLength sourceName zeroBasedStartCoordinate strand
+</pre>
+<p>Therefore, it is possible to get the alignments of the chunks to the
+input sequences, in SEG format, like this:</p>
+<pre class="literal-block">
+awk '/&gt;/ {print $3, $4, $5, $2, $6 == &quot;+&quot; ? 0 : -$3}' chunks.fa &gt; chunks.seg
+</pre>
+<p>The program has these options:</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-f</span></kbd></td>
+<td>Get forward-strand chunks only.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-n <var>N</var></span></kbd></td>
+<td>Get N chunks (default 100000).</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-s <var>S</var></span></kbd></td>
+<td>Use a chunk length of S (default 36).</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-a <var>A</var></span></kbd></td>
+<td>Simulate unequal sequence abundances, using a Pareto (Type I)
+distribution with Pareto index A.  For typical RNA abundances,
+try &quot;-a 1.25&quot;.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="fastq-sim">
+<h1>fastq-sim</h1>
+<p>This program simulates DNA sequencing errors.  It joins sequences from
+a fasta file to quality symbols from a fastq file, then randomly
+mutates the sequences according to the error probabilities represented
+by the quality symbols.  Run it like this:</p>
+<pre class="literal-block">
+fastq-sim sequences.fasta qualities.fastq &gt; simulated.fastq
+</pre>
+<p>If the number of fasta sequences differs from the number of fastq
+sequences, the output will have the minimum of the two.  Likewise, if
+the length of a fasta sequence differs from the length of the
+corresponding fastq sequence, the output will be the shorter of the
+two.</p>
+<p>The fastq data is assumed to be in fastq-sanger format, with no
+line-wrapping or blank lines.</p>
+</div>
+<div class="section" id="fasta-paired-chunks">
+<h1>fasta-paired-chunks</h1>
+<p>This program gets random <em>pairs</em> of chunks of the input sequences.
+Each pair comes from the ends of a randomly-chosen fragment: the first
+chunk is from the start of the fragment's forward strand, and the
+second chunk is from the start of the fragment's reverse strand.  Run
+it like this:</p>
+<pre class="literal-block">
+fasta-paired-chunks sequences.fa output1.fa output2.fa
+</pre>
+<p>The fragment lengths are randomly chosen from a Normal Distribution.
+Chunks containing nonstandard letters are suppressed, and chunk titles
+are made, in the same way as fasta-random-chunks.</p>
+<p>If the output file names are the same, the chunks will be written
+interleaved.  The special file name &quot;-&quot; refers to stdin or stdout, as
+appropriate.</p>
+<p>The program has these options:</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-n <var>NUM</var></span>, <span class="option">--num=<var>NUM</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Get NUM pairs of chunks (default 100000).</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-l <var>BP</var></span>, <span class="option">--length=<var>BP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Use a chunk length of BP base-pairs (default 50).
+You can specify two comma-separated lengths.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-c</span>, <span class="option">--cap</span></kbd></td>
+<td>Get fragments from starts of the input sequences
+only.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-d</span>, <span class="option">--directional</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Get fragments from forward strands of the input
+sequences only.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-f <var>BP</var></span>, <span class="option">--fraglen=<var>BP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Use a mean fragment length of BP base-pairs
+(default 250).</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-s <var>BP</var></span>, <span class="option">--sdev=<var>BP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Use a fragment length standard deviation of BP
+base-pairs (default fraglen/5).</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="fasta-methyl-sim">
+<h1>fasta-methyl-sim</h1>
+<p>This program reads DNA sequences and randomly assigns a methylation
+rate to every cytosine.  Run it like this:</p>
+<pre class="literal-block">
+fasta-methyl-sim sequences.fa &gt; meth.fa
+</pre>
+<p>It replaces Cs with symbols representing different methylation rates.
+It also replaces Gs with symbols representing methylation rates of the
+reverse strand.  The sequences are first converted to uppercase, so
+that lowercase letters can be used for methylation rate symbols.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="15%" />
+<col width="20%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">C symbol</th>
+<th class="head">G symbol</th>
+<th class="head">Methylation
+rate</th>
+<th class="head">Probability in
+cg context</th>
+<th class="head">Probability in
+non-cg context</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>C</td>
+<td>G</td>
+<td>~0%</td>
+<td>0.1</td>
+<td>0.96</td>
+</tr>
+<tr><td>c</td>
+<td>g</td>
+<td>~10%</td>
+<td>0.1</td>
+<td>0.01</td>
+</tr>
+<tr><td>d</td>
+<td>h</td>
+<td>~20%</td>
+<td>0.1</td>
+<td>0.01</td>
+</tr>
+<tr><td>v</td>
+<td>b</td>
+<td>~50%</td>
+<td>0.1</td>
+<td>0.01</td>
+</tr>
+<tr><td>t</td>
+<td>a</td>
+<td>~100%</td>
+<td>0.6</td>
+<td>0.01</td>
+</tr>
+</tbody>
+</table>
+<p>These symbols abuse the standard code for (ambiguous) bases, in such a
+way that complementing them works properly (e.g. v &lt;=&gt; b).</p>
+<p>The symbols are interpreted by fasta-bisulf-sim.</p>
+</div>
+<div class="section" id="fasta-bisulf-sim">
+<h1>fasta-bisulf-sim</h1>
+<p>This program simulates bisulfite conversion of cytosines with given
+methylation rates.  It replaces the C symbols produced by
+fasta-methyl-sim with either &quot;t&quot; (converted) or &quot;C&quot; (not converted).
+It replaces the G symbols with &quot;G&quot;.  Run it like this:</p>
+<pre class="literal-block">
+fasta-bisulf-sim meth.fa &gt; converted.fa
+</pre>
+<p>The conversion rates are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">C symbol</th>
+<th class="head">Conversion rate</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>C</td>
+<td>0.99</td>
+</tr>
+<tr><td>c</td>
+<td>0.9</td>
+</tr>
+<tr><td>d</td>
+<td>0.8</td>
+</tr>
+<tr><td>v</td>
+<td>0.5</td>
+</tr>
+<tr><td>t</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>To simulate conversion of the reverse strand:</p>
+<pre class="literal-block">
+fasta-bisulf-sim -r meth.fa &gt; converted.fa
+</pre>
+</div>
+<div class="section" id="example">
+<h1>Example</h1>
+<p>This example simulates bisulfite-converted DNA reads.  First, we
+simulate methylation rates for every cytosine in a genome:</p>
+<pre class="literal-block">
+fasta-methyl-sim genome/chr*.fa &gt; meth.fa
+</pre>
+<p>Then, we simulate a polymorphic, diploid genome.  The alignments
+between simulated and original chromosomes are written to a file
+called align.seg:</p>
+<pre class="literal-block">
+fasta-polymorph -a align.seg snp132Common.txt meth.fa meth.fa &gt; poly.fa
+</pre>
+<p>Finally, we get 1 million length-85 chunks, simulate bisulfite
+conversion, and simulate sequencing errors.  The error probabilities
+are supplied by a file called sample.fastq:</p>
+<pre class="literal-block">
+fasta-random-chunks -n1000000 -s85 poly.fa |
+fasta-bisulf-sim |
+fastq-sim - sample.fastq &gt; reads.fastq
+</pre>
+</div>
+<div class="section" id="miscellaneous">
+<h1>Miscellaneous</h1>
+<p>DNemulator is distributed under the GNU General Public License, either
+version 3 of the License, or (at your option) any later version.  For
+details, see COPYING.txt.</p>
+<p>Please cite: &quot;A mostly traditional approach improves alignment of
+bisulfite-converted DNA&quot;.  MC Frith, R Mori, K Asai.  Nucleic Acids
+Research (2012) 40 (13): e100.</p>
+<p>Website: <a class="reference external" href="http://www.cbrc.jp/dnemulator/">http://www.cbrc.jp/dnemulator/</a></p>
+<p>Email (questions, comments, problems):
+dnemulator (ATmark) cbrc (dot) jp.</p>
+</div>
+</div>
+</body>
+</html>

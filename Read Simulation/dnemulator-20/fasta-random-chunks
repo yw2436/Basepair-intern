@@ -1,0 +1,112 @@
+#! /usr/bin/env python
+
+# Copyright 2011, 2012 Martin C. Frith
+
+# Read (multi-)FASTA format sequences, and write random chunks of
+# them.  The chunks may be from either strand.  The output is in
+# (multi-)FASTA format.
+
+# In the output, the FASTA header lines provide this information:
+# serialNumber length sourceName zeroBasedStartCoordinate strand
+
+# Chunks containing uppercase letters other than ACGT are suppressed.
+# But all lowercase letters are allowed in chunks.  (This allows us to
+# abuse lowercase letters to represent things such as methylation
+# rates.)
+
+import bisect, fileinput, operator, optparse, os, random, signal, string, sys
+
+def partialsum(numbers):
+    total = 0
+    for i in numbers:
+        total += i
+        yield total
+
+def fastaInput(lines):
+    name = ""
+    for line in lines:
+        if line.startswith(">"):
+            if name: yield name, "".join(seq)
+            name = line[1:].split()[0]
+            seq = []
+        else:
+            seq.append(line.rstrip())
+    if name: yield name, "".join(seq)
+
+def numPlaces(sequence, chunkLength):
+    """Number of possible chunk start positions."""
+    return max(len(sequence) - chunkLength + 1, 0)
+
+complement = string.maketrans("ACGTRYKMBDHVacgtrykmbdhv",
+                              "TGCAYRMKVHDBtgcayrmkvhdb")
+def reverseComplement(seq):
+    return seq[::-1].translate(complement)
+
+def isGoodLetters(seq):
+    for i in seq:
+        if i in "BDEFHIJKLMNOPQRSUVWXYZ":
+            return False
+    return True
+
+def fastaRandomChunks(opts, args):
+    random.seed(1414)  # make it an option?
+
+    namedSeqs = list(fastaInput(fileinput.input(args)))
+
+    if not namedSeqs:
+        raise Exception("no sequences were read")
+
+    names, seqs = zip(*namedSeqs)
+    seqPlaces = [numPlaces(i, opts.s) for i in seqs]
+
+    if opts.a is None:
+        abundances = [1.0 for i in seqs]
+    else:
+        abundances = [random.paretovariate(opts.a) for i in seqs]
+
+    weights = map(operator.mul, abundances, seqPlaces)
+    partialSums = list(partialsum(weights))
+    totWeight = partialSums[-1]
+
+    if not totWeight:
+        raise Exception("the chunks can't fit in the sequences")
+
+    for serialNumber in range(opts.n):
+        while 1:
+            chunkBeg = random.random() * totWeight
+            index = bisect.bisect(partialSums, chunkBeg)
+            if index > 0: chunkBeg -= partialSums[index-1]
+            chunkBeg = int(chunkBeg / abundances[index])
+            chunkEnd = chunkBeg + opts.s
+            chunkSeq = seqs[index][chunkBeg:chunkEnd]
+            if isGoodLetters(chunkSeq): break
+        strand = "+"
+        if not opts.f and random.randrange(2):
+            strand = "-"
+            chunkSeq = reverseComplement(chunkSeq)
+        # Should the serial numbers start from 0 or 1?
+        # Should there be a space after the ">" (for easier parsing)?
+        print ">", serialNumber, opts.s, names[index], chunkBeg, strand
+        print chunkSeq
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # avoid silly error message
+
+    usage = "%prog [options] fastaFile(s)"
+    description = "Get random chunks of fasta-format sequences."
+    op = optparse.OptionParser(usage=usage, description=description)
+    op.add_option("-f", action="store_true",
+                  help="get forward-strand chunks only")
+    op.add_option("-n", type="int", default=100000,
+                  help="number of chunks (default=%default)")
+    op.add_option("-s", type="int", default=36,
+                  help="chunk size (default=%default)")
+    op.add_option("-a", type="float",
+                  help="simulate unequal sequence abundances, with Pareto index A")
+    (opts, args) = op.parse_args()
+
+    try: fastaRandomChunks(opts, args)
+    except KeyboardInterrupt: pass  # avoid silly error message
+    except Exception, e:
+        prog = os.path.basename(sys.argv[0])
+        sys.exit(prog + ": error: " + str(e))

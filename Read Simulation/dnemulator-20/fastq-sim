@@ -1,0 +1,71 @@
+#! /usr/bin/env python
+
+# Copyright 2011 Martin C. Frith
+
+# Read a set of fasta sequences, and a set of fastq-sanger sequences.
+# Join each fasta sequence with the corresponding fastq qualities.
+# Pseudo-randomly mutate each base, with probability indicated by its
+# quality score.  Write in fastq-sanger format.
+
+# Assumes that the fastq data has no line-wrapping or blank lines.
+
+import fileinput, itertools, optparse, os, random, signal, sys
+
+def fastaInput(lines):
+    name = ""
+    for line in lines:
+        line = line.rstrip()
+        if line.startswith(">"):
+            if name: yield name, "".join(seq)
+            name = line[1:]
+            seq = []
+        else:
+            seq.append(line.upper())
+    if name: yield name, "".join(seq)
+
+def fastqInput(lines):
+    for i, x in enumerate(lines):
+        if i % 4 == 3:
+            yield x.rstrip()
+
+def errorProbability(qualityCode):
+    qualityScore = ord(qualityCode) - 33
+    if qualityScore < 0:
+        raise Exception("bad quality code: '" + qualityCode + "'")
+    return 10 ** (-qualityScore / 10.0)
+
+def mutatedBase(base, qualityCode):
+    if base in "ACGT" and random.random() < errorProbability(qualityCode):
+        otherBases = [i for i in "ACGT" if i != base]
+        return random.choice(otherBases)
+    else:
+        return base
+
+def fastqSim(opts, args):
+    random.seed(1414)  # make it an option?
+    fastas = fastaInput(fileinput.input(args[0]))
+    fastqs = fastqInput(fileinput.input(args[1]))
+    for fasta, quals in itertools.izip(fastas, fastqs):
+        name, bases = fasta
+        bases = bases[:len(quals)]
+        quals = quals[:len(bases)]
+        mutatedSeq = "".join(map(mutatedBase, bases, quals))
+        print "@" + name
+        print mutatedSeq
+        print "+"
+        print quals
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # avoid silly error message
+
+    usage = "%prog fastaFile fastqFile"
+    description = "Join fasta sequences to fastq quality symbols, and simulate sequencing errors."
+    op = optparse.OptionParser(usage=usage, description=description)
+    opts, args = op.parse_args()
+    if len(args) != 2: op.error("I need 2 file names")
+
+    try: fastqSim(opts, args)
+    except KeyboardInterrupt: pass  # avoid silly error message
+    except Exception, e:
+        prog = os.path.basename(sys.argv[0])
+        sys.exit(prog + ": error: " + str(e))

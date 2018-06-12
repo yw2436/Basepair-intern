@@ -1,0 +1,56 @@
+#! /usr/bin/env python
+
+# Copyright 2011 Martin C. Frith
+
+# Read FASTA-format DNA sequences, with symbols that indicate Cs with
+# particular methylation rates (or Gs whose paired Cs have particular
+# methylation rates.)  Write the sequences, with each symbol replaced
+# by: t (bisulfite-converted c), C (unconverted c), or G (any g).
+
+import fileinput, optparse, os, random, signal, sys
+
+def convertedSymbolForward(s):
+    if s == "C": return "tC"[random.random() < 0.01]
+    if s == "c": return "tC"[random.random() < 0.1]
+    if s == "d": return "tC"[random.random() < 0.2]
+    if s == "v": return "tC"[random.random() < 0.5]
+    if s == "t": return "C"
+    if s.islower(): return "G"
+    return s
+
+def convertedSymbolReverse(s):
+    if s == "G": return "aG"[random.random() < 0.01]
+    if s == "g": return "aG"[random.random() < 0.1]
+    if s == "h": return "aG"[random.random() < 0.2]
+    if s == "b": return "aG"[random.random() < 0.5]
+    if s == "a": return "G"
+    if s.islower(): return "C"
+    return s
+
+def fastaBisulfSim(opts, args):
+    random.seed(1414)  # make it an option?
+
+    for line in fileinput.input(args):
+        if line.startswith(">"):
+            print line,
+        else:
+            if opts.reverse:
+                print "".join(map(convertedSymbolReverse, line)),
+            else:
+                print "".join(map(convertedSymbolForward, line)),
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # avoid silly error message
+
+    usage = "%prog [options] fastaFile(s)"
+    description = "Simulate bisulfite-conversion of cytosines with given methylation rates."
+    op = optparse.OptionParser(usage=usage, description=description)
+    op.add_option("-r", "--reverse", action="store_true",
+                  help="simulate conversion of the reverse strand")
+    opts, args = op.parse_args()
+
+    try: fastaBisulfSim(opts, args)
+    except KeyboardInterrupt: pass  # avoid silly error message
+    except Exception, e:
+        prog = os.path.basename(sys.argv[0])
+        sys.exit(prog + ": error: " + str(e))

@@ -1,0 +1,165 @@
+#! /usr/bin/env python
+
+# Copyright 2012, 2014 Martin C. Frith
+
+# Read (multi-)FASTA format DNA sequences, get random fragments of
+# them, and write 2 chunks per fragment.  The 1st chunk is from the
+# start of the fragment's forward strand, and the 2nd chunk is from
+# the start of the fragment's reverse strand.  The output is two
+# (multi-)FASTA format files, one for each chunk.
+
+# In the output, the FASTA header lines provide this information:
+# serialNumber/1or2 length sourceName zeroBasedStartCoordinate strand
+
+# Chunks containing uppercase letters other than ACGT are suppressed.
+# But all lowercase letters are allowed in chunks.  (This allows us to
+# abuse lowercase letters to represent things such as methylation
+# rates.)
+
+# NOTE: this chooses random parts of sequences in a different way than
+# fasta-random-chunks.  In fasta-random-chunks, the probability of
+# choosing each sequence is proportional to (seqLen - chunkLen + 1).
+# In this script, it is proportional to seqLen.
+
+import bisect, fileinput, optparse, os, random, signal, string, sys
+
+def partialsum(numbers):
+    total = 0
+    for i in numbers:
+        total += i
+        yield total
+
+def fastaInput(lines):
+    name = ""
+    for line in lines:
+        if line.startswith(">"):
+            if name: yield name, "".join(seq)
+            name = line[1:].split()[0]
+            seq = []
+        else:
+            seq.append(line.rstrip())
+    if name: yield name, "".join(seq)
+
+complement = string.maketrans("ACGTRYKMBDHVacgtrykmbdhv",
+                              "TGCAYRMKVHDBtgcayrmkvhdb")
+def reverseComplement(seq):
+    return seq[::-1].translate(complement)
+
+def isGoodLetters(seq):
+    for i in seq:
+        if i in "BDEFHIJKLMNOPQRSUVWXYZ":
+            return False
+    return True
+
+def writeMe(outFile, chunkName, chunkLen, seqName, chunkBeg, strand, chunk):
+    titleItems = ">", chunkName, chunkLen, seqName, chunkBeg, strand
+    title = " ".join(map(str, titleItems))
+    outFile.write(title)
+    outFile.write("\n")
+    outFile.write(chunk)
+    outFile.write("\n")
+
+def fastaPairedChunks(opts, args):
+    maxChunkLen = max(opts.length)
+
+    if len(opts.length) == 1:
+        chunkLen1 = chunkLen2 = opts.length[0]
+    else:
+        chunkLen1, chunkLen2 = opts.length
+
+    namedSeqs = list(fastaInput(fileinput.input(args[0])))
+
+    if not namedSeqs:
+        raise Exception("no sequences were read")
+
+    names, seqs = zip(*namedSeqs)
+    seqLengths = map(len, seqs)
+    maxSeqLen = max(seqLengths)
+    partialSums = list(partialsum(seqLengths))
+    totSeqLen = partialSums[-1]
+
+    if maxSeqLen < maxChunkLen:
+        raise Exception("the chunks can't fit in the sequences")
+
+    random.seed(1414)  # make it an option?
+
+    if   args[1] == "-":     out1 = sys.stdout
+    else:                    out1 = open(args[1], "w")
+
+    if   args[2] == "-":     out2 = sys.stdout
+    elif args[2] == args[1]: out2 = out1
+    else:                    out2 = open(args[2], "w")
+
+    for serialNumber in range(opts.num):
+        while 1:
+            fragmentLen = int(round(random.gauss(opts.fraglen, opts.sdev)))
+            if fragmentLen >= maxChunkLen and fragmentLen <= maxSeqLen: break
+
+        while 1:
+            if opts.cap:
+                name, seq = random.choice(namedSeqs)
+            else:
+                r = random.randrange(totSeqLen)
+                i = bisect.bisect(partialSums, r)
+                name, seq = namedSeqs[i]
+            seqLen = len(seq)
+            if seqLen < fragmentLen: continue
+            if opts.cap:
+                fragmentBeg = 0
+            else:
+                fragmentBeg = random.randrange(seqLen - fragmentLen + 1)
+            fragmentEnd = fragmentBeg + fragmentLen
+            if opts.directional or random.randrange(2):
+                strand1 = "+"
+                chunkBeg1 = fragmentBeg
+                chunk1 = seq[chunkBeg1:chunkBeg1+chunkLen1]
+                strand2 = "-"
+                chunkBeg2 = fragmentEnd - chunkLen2
+                chunk2 = reverseComplement(seq[chunkBeg2:fragmentEnd])
+            else:
+                strand2 = "+"
+                chunkBeg2 = fragmentBeg
+                chunk2 = seq[chunkBeg2:chunkBeg2+chunkLen2]
+                strand1 = "-"
+                chunkBeg1 = fragmentEnd - chunkLen1
+                chunk1 = reverseComplement(seq[chunkBeg1:fragmentEnd])
+            if isGoodLetters(chunk1) and isGoodLetters(chunk2): break
+
+        chunkName1 = str(serialNumber) + "/1"
+        chunkName2 = str(serialNumber) + "/2"
+
+        writeMe(out1, chunkName1, chunkLen1, name, chunkBeg1, strand1, chunk1)
+        writeMe(out2, chunkName2, chunkLen2, name, chunkBeg2, strand2, chunk2)
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # avoid silly error message
+
+    usage = "%prog [options] in.fa out1.fa out2.fa"
+    description = "Get paired chunks of fasta-format sequences."
+    op = optparse.OptionParser(usage=usage, description=description)
+    op.add_option("-n", "--num", type="int", default=100000,
+                  help="number of pairs (default=%default)")
+    op.add_option("-l", "--length", default="50", metavar="BP",
+                  help="chunk length(s) in bp (default=%default)")
+    op.add_option("-c", "--cap", action="store_true",
+                  help="get fragments from starts of sequences only")
+    op.add_option("-d", "--directional", action="store_true",
+                  help="get forward-strand fragments only")
+    op.add_option("-f", "--fraglen", type="float", default=250, metavar="BP",
+                  help="mean fragment length in bp (default=%default)")
+    op.add_option("-s", "--sdev", type="float", metavar="BP",
+                  help="standard deviation of fragment length (default=f/5)")
+    (opts, args) = op.parse_args()
+
+    opts.length = opts.length.split(",")  # also allow blanks as delimiters?
+    try: opts.length = map(int, opts.length)
+    except: op.error("option -l: invalid integer value")
+
+    if len(args) != 3: op.error("I need 3 file names")
+    if opts.sdev is None: opts.sdev = opts.fraglen / 5
+
+    try: fastaPairedChunks(opts, args)
+    except KeyboardInterrupt: pass  # avoid silly error message
+    except Exception, e:
+        prog = os.path.basename(sys.argv[0])
+        sys.exit(prog + ": error: " + str(e))

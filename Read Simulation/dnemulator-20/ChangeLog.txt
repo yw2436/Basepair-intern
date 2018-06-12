@@ -1,0 +1,104 @@
+2014-04-28  Martin C. Frith  <Martin C. Frith>
+
+	* README.txt, fasta-bisulf-sim:
+	Added fasta-bisulf-sim -r option (thanks: Junko Tsuji)
+	[c7c752bd8417] [tip]
+
+2014-04-03  Martin C. Frith  <Martin C. Frith>
+
+	* test/dnemulator-test.sh, test/dnemulator-test.txt,
+	test/galGal3-M-32.fa:
+	Added some tests
+	[b63f78b372ab]
+
+	* README.txt, fasta-paired-chunks:
+	Allow different chunk lengths in fasta-paired-chunks
+	[67a03ca7d370]
+
+	* README.txt, fasta-paired-chunks:
+	Allow interleaved output for fasta-paired-chunks
+	[0ff39091de51]
+
+2012-11-12  Martin C. Frith  <Martin C. Frith>
+
+	* Makefile:
+	Include the new program in the Makefile!
+	[a96edce1a16f]
+
+	* README.txt:
+	Just added 1 sentence to the README
+	[10feb9b044e1]
+
+2012-11-09  Martin C. Frith  <Martin C. Frith>
+
+	* fasta-paired-chunks:
+	Minor cosmetic changes
+	[5dfd2de068cf]
+
+	* README.txt:
+	Minor edits to the README
+	[82092bcd6f25]
+
+	* README.txt:
+	Added fasta-paired-chunks to the README
+	[33220d8be6cc]
+
+	* fasta-paired-chunks:
+	Added fasta-paired-chunks
+	[35f101352928]
+
+2012-08-08  Martin C. Frith  <Martin C. Frith>
+
+	* Makefile:
+	Fixed the Makefile (tabs)
+	[5db0bbe5351a]
+
+	* Makefile, README.txt:
+	Added "make install"
+	[31e47530d1a6]
+
+2012-03-29  Martin C. Frith  <Martin C. Frith>
+
+	* README.txt:
+	Added the citation to the README
+	[da485e3c24d8]
+
+	* fasta-polymorph:
+	Clarified an error message for bad input
+	[0b09455930bf]
+
+2012-03-19  Martin C. Frith  <Martin C. Frith>
+
+	* fasta-random-chunks:
+	Updated the copyright date
+	[036b0d145de6]
+
+	* README.txt, fasta-random-chunks:
+	Added fasta-random-chunks -a option for unequal sequence abundances
+	[5ce762ebbb9d]
+
+	* fasta-random-chunks:
+	Refactoring
+	[9ae2273cdfd8]
+
+2012-01-10  Martin C. Frith  <Martin C. Frith>
+
+	* README.txt:
+	Tried to clarify the README
+	[11efd37ebec6]
+
+2011-12-31  Martin C. Frith  <Martin C. Frith>
+
+	* README.txt:
+	Fixed a stupid documentation error
+	[7f24b46a79bd]
+
+	* README.txt, fastq-sim:
+	Small cosmetic changes
+	[8f27c6b6d1b2]
+
+	* COPYING.txt, README.txt, fasta-bisulf-sim, fasta-methyl-sim, fasta-
+	polymorph, fasta-random-chunks, fastq-sim:
+	Start using version control
+	[1f88b22c4ad5]
+

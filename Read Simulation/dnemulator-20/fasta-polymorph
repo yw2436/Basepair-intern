@@ -1,0 +1,190 @@
+#! /usr/bin/env python
+
+# Copyright 2011, 2012 Martin C. Frith
+
+# Apply pseudo-random polymorphisms to sequences, based on given
+# alleles and their frequencies.
+
+import fileinput, itertools, optparse, os, random, signal, string, sys
+
+def isGoodAlleleSequence(seq):
+    for i in seq:
+        if i not in "ACGT":
+            return False
+    return True
+
+complement = string.maketrans("ACGT", "TGCA")
+def reverseComplement(seq):
+    return seq[::-1].translate(complement)
+
+# Parses some (not all) weird allele sequences in UCSC/dbSNP.
+def sanitizedAlleleSequence(seq):
+    if seq == "-":
+        seq = ""
+    elif seq.startswith('('):
+        repeat, count = seq[1:].split(')')
+        if count.isdigit():
+            seq = repeat * int(count)
+    return seq
+
+def readAlleles(lines):
+    polymorphismDict = {}
+
+    for line in lines:
+        f = line.split("\t")
+        chrom = f[1]
+        beg = int(f[2])
+        end = int(f[3])
+        strand = f[6]
+        alleles = f[22].rstrip(",").split(",")
+        freqs = f[24].rstrip(",").split(",")
+        alleles = map(sanitizedAlleleSequence, alleles)
+        isGood = map(isGoodAlleleSequence, alleles)
+        alleles = [j for i, j in zip(isGood, alleles) if i]
+        freqs   = [j for i, j in zip(isGood, freqs)   if i]
+        freqs = map(float, freqs)
+        if strand == "-":
+            alleles = map(reverseComplement, alleles)
+        p = beg, end, alleles, freqs
+        polymorphismDict.setdefault(chrom, []).append(p)
+
+    for v in polymorphismDict.values():
+        v.sort()
+
+    return polymorphismDict
+
+# Omits any polymorphism whose end coordinate is greater than the next
+# polymorphism's start coordinate.  Also omits any polymorphism with
+# no good/sanitizable allele sequences.
+def wantedPolymorphisms(sortedPolymorphisms):
+    i = [0, 0, [], []]
+    for j in sortedPolymorphisms:
+        if i[1] <= j[0]:
+            if i[2]: yield i
+        i = j
+    if i[2]: yield i
+
+def fastaInput(lines):
+    name = ""
+    for line in lines:
+        if line.startswith(">"):
+            if name: yield name, "".join(seq)
+            name = line[1:].split()[0]
+            seq = []
+        else:
+            seq.append(line.rstrip())
+    if name: yield name, "".join(seq)
+
+def writeFasta(name, seq):
+    print ">" + name
+    linesize = 50
+    seqlen = len(seq)
+    beg = 0
+    while beg < seqlen:
+        end = beg + linesize
+        print seq[beg:end]
+        beg = end
+
+def randomWeightedChoice(items, weights):
+    r = sum(weights) * random.random()
+    for i, j in zip(items, weights):
+        if r < j: return i
+        r -= j
+    assert 0
+
+def randomAllele(polymorphism):
+    beg, end, seqs, freqs = polymorphism
+    s = randomWeightedChoice(seqs, freqs)
+    return beg, end, s
+
+def polymorphedSequence(originalSequence, alleles):
+    pos = 0
+    for i in alleles:
+        beg, end, seq = i
+        assert end >= beg
+        assert beg >= pos
+        yield originalSequence[pos:beg]
+        yield seq
+        pos = end
+    if pos > len(originalSequence):
+        raise Exception("SNP coordinate exceeds chromosome length")
+    yield originalSequence[pos:]
+
+# Returns the alignment between the original and polymorphed
+# sequences, as a list of segment pairs.
+def alignedSegmentPairs(originalSequence, alleles):
+    pos = 0  # zero-based coordinate in the original sequence
+    newPos = 0  # zero-based coordinate in the polymorphed sequence
+    for i in alleles:
+        beg, end, seq = i
+
+        size = beg - pos
+        yield size, pos, newPos
+        pos = beg
+        newPos += size
+
+        size = len(seq)
+        if size == end - beg:
+            yield size, pos, newPos
+        pos = end
+        newPos += size
+
+    size = len(originalSequence) - pos
+    yield size, pos, newPos
+
+def diagonal(segmentPair):  # (coordinate in seq1) - (coordinate in seq2)
+    return segmentPair[1] - segmentPair[2]
+
+def mergedSegmentPairs(segmentPairs):
+    for k, g in itertools.groupby(segmentPairs, diagonal):
+        g = list(g)
+        x = g[0]
+        y = g[-1]
+        size = y[0] + y[1] - x[1]
+        if size: yield size, x[1], x[2]
+
+def fastaPolymorph(opts, args):
+    random.seed(1414)  # make it an option?
+
+    polymorphismDict = readAlleles(fileinput.input(args[0]))
+
+    if opts.alignments:
+        f = open(opts.alignments, "w")
+
+    chromCounts = {}
+
+    for chrom, seq in fastaInput(fileinput.input(args[1:])):
+        timesSeen = chromCounts.setdefault(chrom, 0)
+        chromCounts[chrom] += 1
+        chromNameSuffix = string.ascii_lowercase[timesSeen]
+        newChrom = chrom + chromNameSuffix
+
+        polymorphisms = polymorphismDict.get(chrom, [])
+        polymorphisms = wantedPolymorphisms(polymorphisms)
+        alleles = map(randomAllele, polymorphisms)
+
+        newSeq = "".join(polymorphedSequence(seq, alleles))
+        writeFasta(newChrom, newSeq)
+
+        if opts.alignments:
+            for i in mergedSegmentPairs(alignedSegmentPairs(seq, alleles)):
+                size, pos, newPos = i
+                out = size, chrom, pos, newChrom, newPos
+                f.write("\t".join(map(str, out)) + "\n")
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # avoid silly error message
+
+    usage = "%prog [options] ucscSnpFile fastaFile(s)"
+    description = "Randomly modify sequences, using given polymorphisms and their frequencies."
+    op = optparse.OptionParser(usage=usage, description=description)
+    op.add_option("-a", "--alignments", metavar="FILE",
+                  help="write alignments (segment pairs) to FILE")
+    opts, args = op.parse_args()
+    if len(args) < 2: op.error("I need 2 (or more) file names")
+
+    try: fastaPolymorph(opts, args)
+    except KeyboardInterrupt: pass  # avoid silly error message
+    except Exception, e:
+        prog = os.path.basename(sys.argv[0])
+        sys.exit(prog + ": error: " + str(e))
