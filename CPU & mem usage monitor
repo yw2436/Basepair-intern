@@ -1,0 +1,3 @@
+I used 'sar' command to get the CPU & mem usage information
+
+My plan is using 'sar -P ALL 1 100 > usage.txt'.
