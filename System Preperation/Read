@@ -1,6 +1,0 @@
-The test server I used is a Microsoft Azure server. I need to do a lot preparation before using it.
-First of all, I need to figure out the dependencies.
-
-Bismark: Bowtie/Bowtie2, Samtools, Perl
-Bowtie/Bowtie2: TBB
-Samtools: GCC
