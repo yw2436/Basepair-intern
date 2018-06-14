@@ -14,3 +14,5 @@ List:
   git
   python-pip
 And using pip, I installed some python packages: numpy, methylpy
+
+Also, I installed munin and munin-node to monitor cpu and mem usage of the pipeline.
