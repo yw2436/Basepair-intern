@@ -1,0 +1,113 @@
+This is the summary of the methylpy pipeline. All the introductions can be found here: https://github.com/yupenghe/methylpy
+
+# Preprocess the genome
+methylpy build-reference [-h] --input-files INPUT_FILES [INPUT_FILES ...] 
+                              --output-prefix OUTPUT_PREFIX 
+                              [--bowtie2 BOWTIE2]
+                              [--path-to-aligner PATH_TO_ALIGNER]
+                              [--buffsize BUFFSIZE] [--parallel PARALLEL]
+                              [--offrate OFFRATE]
+                                
+                              Arguement explained: --bowtie2 True(False); --buffsize 100(not important); --parallel False(True, using 2 cores); --offrate (bowtie parameter, relevent to performance)
+                              
+# single-end/pair-end pipeline
+methylpy single-end-pipeline \
+	--read-files raw/mESC_R1.fastq.gz \
+	--sample mESC \
+	--forward-ref mm10_bt2/mm10_f \
+	--reverse-ref mm10_bt2/mm10_r \
+	--ref-fasta mm10_bt2/mm10.fa \
+	--num-procs 8 \
+	--remove-clonal True \
+	--path-to-picard="picard/"
+  
+  methylpy paired-end-pipeline \
+	--read1-files raw/mESC_R1.fastq.gz \
+	--read2-files raw/mESC_R2.fastq.gz \
+	--sample mESC \
+	--forward-ref mm10_bt2/mm10_f \
+	--reverse-ref mm10_bt2/mm10_r \
+	--ref-fasta mm10_bt2/mm10.fa \
+	--num-procs 8 \
+	--remove-clonal True \
+	--path-to-picard="picard/"
+  
+  
+# DMR
+methylpy DMRfind \
+	--allc-files allc/allc_AD_HT.tsv.gz allc/allc_AD_IT.tsv.gz \
+	--samples AD_HT AD_IT \
+	--mc-type "CGN" \
+	--chroms 1 2 3 4 5 \
+	--num-procs 8 \
+	--output-prefix DMR_HT_IT
+  
+# From bam to allc
+methylpy call-methylation-state \
+	--input-file mESC_processed_reads_no_clonal.bam \
+	--paired-end True \
+	--sample mESC \
+	--ref-fasta mm10_bt2/mm10.fa \
+	--num-procs 8
+
+
+# From allc and intervals to methylation levels of the intervals
+methylpy add-methylation-level \
+	--input-tsv-file DMR_AD_IT.tsv \
+	--output-file DMR_AD_IT_with_level.tsv \
+	--allc-files allc/allc_AD_HT_1.tsv.gz allc/allc_AD_HT_2.tsv.gz \
+		allc/allc_AD_IT_1.tsv.gz allc/allc_AD_IT_2.tsv.gz \
+	--samples AD_HT_1 AD_HT_2 AD_IT_1 AD_IT_2 \
+	--mc-type CGN \
+	--num-procs 4
+  
+  # Merge allcs 
+  methylpy merge-allc \
+	--allc-files allc/allc_AD_HT_1.tsv.gz allc/allc_AD_HT_2.tsv.gz \
+	--output-file allc/allc_AD_HT.tsv.gz \
+	--num-procs 1 \
+	--compress-output True
+  
+  # FIlter allc
+  methylpy filter-allc \
+	--allc-file allc/allc_AD_HT_1.tsv.gz \
+	--output-file allc/allCG_AD_HT_1.tsv.gz \
+	--mc-type CGN \
+	--min-cov 2 \
+	--compress-output True
+  
+  # Index allc, can speed up reading allc
+  methylpy index-allc \
+	--allc-files allc/allc_AD_HT_1.tsv.gz allc/allc_AD_HT_2.tsv.gz \
+	--num-procs 2 \
+	--no-reindex False
+  
+  # Allc to bigwig
+  methylpy allc-to-bigwig \
+	--allc-file results/allc_mESC.tsv.gz \
+	--output-file results/allc_mESC.bw \
+	--ref-fasta mm10_bt2/mm10.fa \
+	--mc-type CGN \
+	--bin-size 100 	
+
+# bam filter
+methylpy bam-quality-filter \
+	--input-file mESC_processed_reads_no_clonal.bam \
+	--output-file mESC_processed_reads_no_clonal.filtered.bam \
+	--ref-fasta mm10_bt2/mm10.fa \
+	--min-mapq 30 \
+	--min-num-ch 3 \
+	--max-mch-level 0.7 \
+	--buffer-line-number 100
+  
+  # Reidentify DMRs
+  methylpy reidentify-DMR \
+	--input-rms-file results/DMR_P0_FBvsHT_rms_results.tsv.gz \
+	--output-file results/DMR_P0_FBvsHT_rms_results_recollapsed.tsv \
+	--collapse-samples P0_FB_1 P0_FB_2 P0_HT_1 P0_HT_2 \
+	--sample-category P0_FB P0_FB P0_HT P0_HT \
+	--min-cluster 2
+
+
+
+
