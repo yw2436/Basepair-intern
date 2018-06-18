@@ -1,0 +1,8 @@
+The read simulation is done using DNemulator.
+
+Pipeline:
+fasta-methyl-sim genome.fa > meth.fa     #Random assigns a methylation rate to every C by changing Cs into C,c,d,v,t or changing Gs into G,g,h,b,a(corresponding to a meth-rate of 0,10%,20%,50%,100%).
+fasta-polymorph -a align.seg snp.txt meth.fa (meth.fa) > poly.fa   #Random modifies DNA sequences using give snp information.
+fasta-random-chunks -n1000000 -s85 poly.fa > random-chunks.fa
+fasta-bisulf-sim random-chunks.fa
+fastq-sim random-chunks.fa sample.fastq > reads.fastq
