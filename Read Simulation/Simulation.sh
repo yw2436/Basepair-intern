@@ -11,6 +11,6 @@ sed -n '1,4979130p' hg38.fa > hg38_chr1.fa
 fasta-methyl-sim hg38_chr1.fa > meth.fa
 
 # Get 1 million length-85 chunks, simulate bisulfite conversion, and simulate sequencing errors
-fasta-random-chunks -n1000000 -s85 poly.fa |
+fasta-random-chunks -n 25000000 -s100 poly.fa |
 fasta-bisulf-sim |
 fastq-sim - sample.fastq > reads.fastq
