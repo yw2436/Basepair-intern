@@ -11,5 +11,23 @@ Methylpy
 Different from Bismark, which outputs the methylation information within the reads, methylpy outputs the positions of all Cs in the reference genome with the number of reads supporting methylation and the total number of reads covering each C. It also can implement statistical tests to validate the methylation. In addition to methylation calling, it also provides various tools for differential methylation analysis, i.e. identifing differentialy methylated sites and differential methylated regions.
 
 
+Comparasion between Bismark and methylpy
+  Input and Genome preparation: Roughly the same, both packages have their own function to prepare the genome. 
+  Alignment: Roughly the same, both packages can choose either using bowtie or bowtie2 as the aligner, and the the parameters of the alignment can be passed to bowtie/bowtie2 using certain options within the pipelines.
+  Outputs: 
+    Bismark outputs a bam/sam file with additional **three?** fields: 
+      NM-tag (edit distance to the reference); 
+      MD-tag (base-by-base mismatches to the reference); 
+      XM-tag (methylation call string); 
+      XR-tag (read conversion state for the alignment); 
+      XG-tag (genome conversion state for the alignment)
+      Example:
+        
+    methylpy outputs a 'allc' file, which is a tsv file contain 9 columns(2 columns are optional): chromosome, position(1 based), strand, sequence context, mc(the number of reads covering this position that support methylation), cov(total number of reads covering this position), methylated(indicator of significant methylation, 1 if no test is performed), num_matches(optional, number of match basecalls at context nucleotides) and num_mismatches(optional, number of mismatch at context nucleotides)
+      Example(1 line): 
+        12  18283342  + CGT 18  32  1 3,2,3 0,1,0
+  Performance:
+    
+
 
 
