@@ -1,0 +1,15 @@
+DNA methylation is an important epigenetic modification that is used to regulate many biological processes such as gene expression, chromatin structure, imprinting and chromosome stability. Also, abnormality of DNA methylation is observed in various diseases, especially cancers.  Understanding DNA methylation requires researchers to know at least the position and context of the methylation, which can be dectected thanks to improvements in high-throughput sequencing technologies, using a methods called Bisulfite sequencing (BS-Seq) or whole-genome bisulfite sequencing (WGBS). Here, we briefly introduce BS-Seq and WGBS to you. Also we introduce and compare two well-established pipelines, Bismark and methylpy, to process this kind of data.
+
+Intro to BS-Seq and WGBS
+Bisulfite sequencing (BS-Seq) or whole-genome bisulfite sequencing (WGBS) is a well-established protocol to detect methylated cytosines in genomic DNA. In this method, genomic DNA is treated with sodium bisulfite and then sequenced, providing single-base resolution of methylated cytosines in the genome. Upon bisulfite treatment, unmethylated cytosines are deaminated to uracils which, upon sequencing, are converted to thymidines. Simultaneously, methylated cytosines resist deamination and are read as cytosines. The location of the methylated cytosines can then be determined by comparing treated and untreated sequences. Bisulfite treatment of DNA converts unmethylated cytosines to thymidines, leading to reduced sequence complexity. Very accurate deep sequencing serves to mitigate this loss of complexity.
+
+Bismark
+The output of BS-Seq and WGBS are fastq files just like other sequencing protocols. In order to extract the methylation information from these fastq files, we need to align them to a reference genome. By looking at all the Cs between the sequencing reads and reference, those unconverted Cs are the ones that are methylated.
+Bismark is a program to map bisulfite treated sequencing reads to a genome of interest and perform methylation calls in a single step. It takes in a reference genome and sequencing reads, and outputs a bam file containing the alignment and a string that indicates the methylation of every base. It will also output a report file containing the alignment and methylation summary. For furthar processing, it also has functions like bismark_methylation_extractor to extract only the Cs. As for visulation, the output can be easily imported into a genome viewer, such as SeqMonk, and enables a researcher to analyse the methylation levels of their samples straight away. 
+
+Methylpy
+Different from Bismark, which outputs the methylation information within the reads, methylpy outputs the positions of all Cs in the reference genome with the number of reads supporting methylation and the total number of reads covering each C. It also can implement statistical tests to validate the methylation. In addition to methylation calling, it also provides various tools for differential methylation analysis, i.e. identifing differentialy methylated sites and differential methylated regions.
+
+
+
+
