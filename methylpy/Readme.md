@@ -4,3 +4,6 @@ Methylpy, a python-based analysis pipeline for
     differential methylation analysis
     
 Github: https://github.com/yupenghe/methylpy/tree/methylpy
+
+Installation:
+    pip install methylpy
