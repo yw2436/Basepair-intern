@@ -7,5 +7,12 @@ install pip:
 install methylpy(automaticlly including numpy, scipy):
   sudo pip install methylpy
 install sratools:
+  #first copy the binary files downloaded from their website to the server
+  #and move them to the bin directory, and add them to PATH. Also, change the permissions of the programs under the bin directory
+make the /mnt/resource directory usable:
+  sudo chown yuhan /mnt/resource
+install bowtie/bowtie2:
+
+
   
  
