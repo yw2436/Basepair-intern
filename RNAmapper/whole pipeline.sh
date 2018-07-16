@@ -1,3 +1,12 @@
+mkdir wt_fasta mut_fasta  #to store all the reads
+mkdir genome gtfFiles #store the genome and gtf files
+mkdir alignment
+mkdir alignment/STAR_wt alignment/STAR_mut  #to store the bam files
+mkdir vcf_files #to store the vcf files for every chr
+mkdir cufflinks
+
+
+
 #prepare the genome, the genome and gtf filename might change
 
 STAR --runMode genomeGenerate --runThreadN 16 --genomeDir genome/GRCz10/ --genomeFastaFiles genome/GRCz10/danRer10.fa --sjdbGTFfile gtfFile/GRCz10/Danio_rerio.GRCz10.91.gtf
