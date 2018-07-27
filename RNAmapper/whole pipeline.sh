@@ -30,6 +30,9 @@ samtools mpileup -ABuf /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GR
 samtools mpileup -ABuf /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GRCz10.dna.toplevel.fa /mnt/bioinfo/RNAmapper_test2/read/STAR_mut/hox80_sorted.bam | bcftools view -O b --threads 8 > /mnt/bioinfo/RNAmapper_test2/reads/STAR_mut/hox80_raw.bcf 
 samtools mpileup -ABuf /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GRCz10.dna.toplevel.fa /mnt/bioinfo/RNAmapper_test2/read/STAR_mut/nhslmut_sorted.bam | bcftools view -O b --threads 8 > /mnt/bioinfo/RNAmapper_test2/reads/STAR_mut/nhslmut_raw.bcf   ##--outSAMstrandField intronMotif 
 
+bcftools view mut.bcf | sed 's/<\*>/X/g' > mut_X.vcf &
+bcftools view wt.bcf | sed 's/<\*>/X/g' > wt_X.vcf &
+
 for i in {1..25}; do bcftools view nhslwt_raw.bcf | grep -w ^$i > nhslwt_chr$i.vcf; done &
 for i in {1..25}; do bcftools view wt80_raw.bcf | grep -w ^$i > wt80_chr$i.vcf; done &
 for i in {1..25}; do bcftools view hox80_raw.bcf  | grep -w ^$i > hox80_chr$i.vcf; done &
@@ -51,5 +54,11 @@ cufflinks -o _cufflinks_wt/nhslwt -p 8 -g /mnt/bioinfo/RNAmapper_test2/gtfFile/G
 cufflinks -o _cufflinks_mut/nhslmut -p 8 -g /mnt/bioinfo/RNAmapper_test2/gtfFile/GRCz10/Danio_rerio.GRCz10.91.gtf -u /mnt/bioinfo/RNAmapper_test2/reads/STAR_mut_2/nhsl_mut/Aligned_sorted.bam
 cufflinks -o _cufflinks_mut/hox80 -p 8 -g /mnt/bioinfo/RNAmapper_test2/gtfFile/GRCz10/Danio_rerio.GRCz10.91.gtf -u /mnt/bioinfo/RNAmapper_test2/reads/STAR_mut_2/hox80/Aligned.sortedByCoord.out.bam
 
+
+echo "_cufflinks_wt/transcripts.gtf" > assemblies.txt
+echo "_cufflinks_mut/transcripts.gtf" >> assemblies.txt
+cuffmerge -o _cuffmerge -g /mnt/bioinfo/RNAmapper_test2/gtfFile/GRCz10/Danio_rerio.GRCz10.91.gtf -p 8 -s /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GRCz10.dna.toplevel.fa assemblies.txt
+
+cuffdiff -o _cuffdiff -b /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GRCz10.dna.toplevel.fa -L wt,mut -p 8 -u _cuffmerge/merged.gtf alignment/STAR_s5/wt_sorted.bam alignment/STAR_s7/mut_sorted.bam 
 
 
