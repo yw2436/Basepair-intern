@@ -61,4 +61,23 @@ cuffmerge -o _cuffmerge -g /mnt/bioinfo/RNAmapper_test2/gtfFile/GRCz10/Danio_rer
 
 cuffdiff -o _cuffdiff -b /mnt/bioinfo/RNAmapper_test2/genome/GRCz10/Danio_rerio.GRCz10.dna.toplevel.fa -L wt,mut -p 8 -u _cuffmerge/merged.gtf alignment/STAR_s5/wt_sorted.bam alignment/STAR_s7/mut_sorted.bam 
 
+########
+mkdir RNAidentifie
+cd RNAidentifie
+mkdir _settings
+cd _settings
+echo 'chromsome=X' > identifieRsettings.txt
+echo 'left edge of linkage=Y' >> identifieRsettings.txt
+echo 'right edge of linkage=Z' >> identifieRsettings.txt
+cd ..
+Rscript --vanilla /mnt/bioinfo/RNAmapper_test2/scripts/RNAmapperScripts/RNAidentifie.R        #This will create a directory called _RNAidentifieR to store the output
+################
 
+cd _RNAidentifieR
+variant_effect_predictor.pl -i VEPinput.vcf -o VEPoutput.txt -species zebrafish -check_existing
+
+cd ..
+Rscript --vanilla VEPsorter.R
+
+#run in top directory
+Rscript --vanilla RNAeffecto.R
